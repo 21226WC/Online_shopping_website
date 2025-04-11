@@ -21,7 +21,27 @@ def render_homepage():
 
 @app.route('/menu')
 def render_menu():
-    return render_template('menu.html')
+   return render_template('menu.html')
+
+
+@app.route('/contact')
+def render_contact():
+    return render_template('contact.html')
+
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def render_login():
+    return render_template('login.html')
+
+
+
+
+@app.route('/login_sell', methods=['GET', 'POST'])
+def render_login_sell():
+    return render_template('login_sell.html')
+
+
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -33,9 +53,9 @@ def render_signup():
         email = request.form['uemail'].lower().strip()
 
         if password != confirmpassword:
-            return redirect("signup?error=Passwords_do_not_match")
+            return redirect("Passwords_do_not_match")
         if len(password) < 8:
-            return redirect("signup?error=Password_too_short")
+            return redirect("Password_too_short")
 
 
     return render_template('signup.html')
@@ -46,7 +66,7 @@ def render_signup_sell():
     if request.method == 'POST':
         username = request.form['uname'].title().strip()
         password = request.form['upassword'].strip()
-        confirmpassword = request.form['cpassword'].strip()
+        confirm_password = request.form['cpassword'].strip()
         email = request.form['uemail'].lower().strip()
 
         if password != confirmpassword:
@@ -56,11 +76,6 @@ def render_signup_sell():
 
 
     return render_template('signup_sell.html')
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def render_login():
-    return render_template('login.html')
 
 
 
