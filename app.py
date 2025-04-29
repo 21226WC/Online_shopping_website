@@ -1,3 +1,5 @@
+from idlelib import query
+
 from flask import Flask, render_template, request, redirect
 import sqlite3
 from sqlite3 import Error
@@ -21,7 +23,10 @@ def render_homepage():
 
 @app.route('/menu')
 def render_menu():
+   con = connect_database('USER_INFORMATION_DATABASE.db')
+   query = "SELECT"
    return render_template('menu.html')
+
 
 
 @app.route('/contact')
