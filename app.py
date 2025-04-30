@@ -1,4 +1,5 @@
 from idlelib import query
+from itertools import product
 
 from flask import Flask, render_template, request, redirect
 import sqlite3
@@ -21,11 +22,16 @@ def render_homepage():
     return render_template('home.html')
 
 
-@app.route('/menu')
-def render_menu():
+@app.route('/listings')
+def render_listings():
    con = connect_database('USER_INFORMATION_DATABASE.db')
    query = "SELECT"
-   return render_template('menu.html')
+   cur = con.cursor()
+   cur.execute(query)
+   listings = cur.fetchall()
+   print(listings)
+   con.close()
+   return render_template('listings.html')
 
 
 
