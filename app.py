@@ -5,6 +5,7 @@ from flask import Flask, render_template, request, redirect
 import sqlite3
 from sqlite3 import Error
 app = Flask(__name__)
+DATABASE = 'data.db'
 
 def connect_database(db_file):
     """
@@ -24,8 +25,8 @@ def render_homepage():
 
 @app.route('/listings')
 def render_listings():
-   con = connect_database('USER_INFORMATION_DATABASE.db')
-   query = "SELECT"
+   con = connect_database('LISTINGS_USER.db')
+   query = "SELECT * FROM listings ORDER BY listing_id"
    cur = con.cursor()
    cur.execute(query)
    listings = cur.fetchall()
