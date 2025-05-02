@@ -73,7 +73,7 @@ def render_signup():
         con = connect_database('DATABASE')
         query_insert = "INSERT INTO user_listings (name, email, password) VALUES (?, ?, ?)"
         cur = con.cursor()
-        cur.execute(query)
+        cur.execute(query_insert, (username, email, password))
 
 
     return render_template('signup.html')
