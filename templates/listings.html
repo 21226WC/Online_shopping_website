@@ -4,13 +4,13 @@
 
 {% block main %}
     {% for listings in listings_info %}
-        <div> class="product-box">
-            <h3 class = product-box-heading> {{ listings[0] }} </h3>
-            <p class = product-box-info {{ listings[1] }} </p>
-            <img src = "static/images/ {{ listings[2] }}.jpg">
-            <p class =
-
-
+        <div class = "product-box">
+            <h3 class = "product-box-heading"> {{ listings[0] }} </h3>
+            <h3 class = "product-box-info"> {{ listings[2] }} </h3>
+            <img src = "static/images/{{ listings[3] }}.jpg">
+            <p> Price: {{ listings[5] }} </p>
+            <p> listing owned by: {{ listings[7] }} </p>
         </div>
+    {% endfor %}
 
 {% endblock %}

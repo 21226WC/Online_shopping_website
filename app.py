@@ -70,6 +70,11 @@ def render_signup():
         if len(password) < 8:
             return redirect("Password_too_short")
 
+        con = connect_database('DATABASE')
+        query_insert = "INSERT INTO user_listings (name, email, password) VALUES (?, ?, ?)"
+        cur = con.cursor()
+        cur.execute(query)
+
 
     return render_template('signup.html')
 
