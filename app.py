@@ -4,7 +4,12 @@ from itertools import product
 from flask import Flask, render_template, request, redirect
 import sqlite3
 from sqlite3 import Error
+from flask_bcrypt import bcrypt, Bcrypt
+
 app = Flask(__name__)
+bcrypt = Bcrypt(app)
+
+
 DATABASE = "/Users/aaronzang/FlaskProject4/DATABASE"
 
 def connect_database(db_file):
@@ -71,9 +76,11 @@ def render_signup():
             return redirect("Password_too_short")
 
         con = connect_database('DATABASE')
-        query_insert = "INSERT INTO user_listings (name, email, password) VALUES (?, ?, ?)"
+        query_insert = "INSERT INTO signup_users (name, email, password) VALUES (?, ?, ?)"
         cur = con.cursor()
         cur.execute(query_insert, (username, email, password))
+        con.commit()
+        con.close()
 
 
     return render_template('signup.html')
@@ -94,11 +101,6 @@ def render_signup_sell():
 
 
     return render_template('signup_sell.html')
-
-
-
-
-
 
 
 
