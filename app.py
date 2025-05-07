@@ -8,6 +8,7 @@ from flask_bcrypt import bcrypt, Bcrypt
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+app.secret_key = "alsdkhf"
 
 
 DATABASE = "/Users/aaronzang/FlaskProject4/DATABASE"
@@ -50,7 +51,27 @@ def render_contact():
 
 @app.route('/login', methods=['GET', 'POST'])
 def render_login():
-    return render_template('login.html')
+     if request.method == 'POST':
+         email = request.form['user_email'].lower().strip()
+         password = request.form['user_password'].strip()
+
+         query = "SELECT * FROM signup_users WHERE email = ?"
+         con = connect_database(DATABASE)
+         cur = con.cursor()
+         cur.execute(query, (email,))
+         user_info = cur.fetchall()
+         print (user_info)
+         cur.close()
+         try:
+             ID = user_info[0][0]
+             name = user_info[0][1]
+             email = user_info[0][2]
+             password = user_info[0][3]
+         except IndexError:
+             return redirect('/login?error=email_or_password_incorrect')
+         if bcrypt.check_password_hash(user_info['password'], password):
+
+     return render_template('login.html')
 
 
 
@@ -75,12 +96,15 @@ def render_signup():
         if len(password) < 8:
             return redirect("Password_too_short")
 
+        hashed_password = bcrypt.generate_password_hash(password)
+
         con = connect_database('DATABASE')
         query_insert = "INSERT INTO signup_users (name, email, password) VALUES (?, ?, ?)"
         cur = con.cursor()
-        cur.execute(query_insert, (username, email, password))
+        cur.execute(query_insert, (username, email, hashed_password))
         con.commit()
         con.close()
+        return render_template('login.html')
 
 
     return render_template('signup.html')
