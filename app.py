@@ -24,15 +24,22 @@ def connect_database(db_file):
     except Error:
         print ("an error has occurred when connecting to database")
 
-def logged_in
-    session["ID"] = None
-    print("Not logged in")
+
+def logged_in():
+    if session.get("ID") == None:
+        print("Not logged in")
+        return False
+    else:
+        print("Logged in")
+        print("true")
+        return True
+
 
 
 
 @app.route('/')
 def render_homepage():
-    return render_template('home.html')
+    return render_template('home.html',log_in=logged_in())
 
 
 @app.route('/listings')
@@ -44,7 +51,28 @@ def render_listing():
    cur.execute(query)
    listings = cur.fetchall()
    con.close()
-   return render_template('listings.html', listings_info=listings)
+   return render_template('listings.html', listings_info=listings,log_in=logged_in())
+
+
+@app.route('/create_listing', methods=['GET', 'POST'])
+def create_listing():
+    if request.method == 'POST':
+        title = request.form['title'].title().strip()
+        description = request.form['description'].strip()
+        price = request.form['price'].strip()
+        con = connect_database('DATABASE')
+        query_insert = "INSERT INTO user_listings (title, description, price) VALUES (?, ?, ?)"
+        cur = con.cursor()
+        cur.execute(query_insert, (title, description, price))
+
+
+
+
+
+    return render_template('creating_listing.html', log_in=logged_in())
+
+
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -75,7 +103,7 @@ def render_listings():
              return redirect('/listings')
 
 
-     return render_template('login.html')
+     return render_template('login.html',log_in=logged_in())
 
 
 
@@ -109,3 +137,8 @@ def render_signup():
 
 if __name__ == '__main__':
     app.run()
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    session.clear()
+    return redirect('/?message=successfully logged out')

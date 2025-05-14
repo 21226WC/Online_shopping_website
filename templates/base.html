@@ -16,14 +16,24 @@
         <div class="navbar-brand">smile.</div>
         <div class="navbar-links">
             <a href="/">home</a>
-            <a href="/login">login</a>
+            <a href="/create_listing">create listing</a>
+            {% if log_in == True %}
+                <a href="/logout">log out</a>
+            {% else %}
+                <a href="/login">log in</a>
+            {% endif %}
+
+            {% if log_in == True %}
+                <a href="/listings">listings</a>
+            {% else %}
+            {% endif %}
 
         </div>
     </div>
 </nav>
 <div class="container">
     <header>
-        <h1>smile</h1>
+        <h1></h1>
         <h2>{% block pageheading %}{% endblock %}</h2>
     </header>
 
