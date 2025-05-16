@@ -11,6 +11,7 @@ bcrypt = Bcrypt(app)
 app.secret_key = "alsdkhf"
 
 
+
 DATABASE = "/Users/aaronzang/FlaskProject4/DATABASE"
 def connect_database(db_file):
     """
@@ -45,13 +46,25 @@ def render_homepage():
 @app.route('/listings')
 def render_listing():
    con = connect_database('DATABASE')
-   query = "SELECT * FROM user_listings ORDER BY listing_id"
+   query = "SELECT title, description, price, image_id, name from user_listings INNER JOIN signup_users ON user_listings.ID=signup_users.ID"
    temp_query = "SELECT * FROM sqlite_master"
+   print(query)
    cur = con.cursor()
    cur.execute(query)
    listings = cur.fetchall()
    con.close()
    return render_template('listings.html', listings_info=listings,log_in=logged_in())
+
+
+@app.route('/my_listings')
+def render_my_listings():
+   con = connect_database('DATABASE')
+   query = "SELECT title, description, price, image_id, name from user_listings INNER JOIN signup_users ON user_listings.ID=signup_users.ID where user_listings.ID = ?"
+   cur = con.cursor()
+   cur.execute(query, (session['ID'],))
+   my_listings = cur.fetchall()
+   con.close()
+   return render_template('My_listings.html',my_listings=my_listings, log_in=logged_in())
 
 
 @app.route('/create_listing', methods=['GET', 'POST'])
@@ -60,15 +73,13 @@ def create_listing():
         title = request.form['title'].title().strip()
         description = request.form['description'].strip()
         price = request.form['price'].strip()
+        ID = session["ID"]
         con = connect_database('DATABASE')
-        query_insert = "INSERT INTO user_listings (title, description, price) VALUES (?, ?, ?)"
+        query_insert = "INSERT INTO user_listings (title, description, price, ID) VALUES (?, ?, ? ,?)"
         cur = con.cursor()
-        cur.execute(query_insert, (title, description, price))
-
-
-
-
-
+        cur.execute(query_insert, (title, description, price, ID))
+        con.commit()
+        con.close()
     return render_template('creating_listing.html', log_in=logged_in())
 
 
@@ -97,8 +108,9 @@ def render_listings():
          if not bcrypt.check_password_hash(login_password, password):
              return redirect('/login?error=email_or_password_incorrect')
          else:
-             session ['email'] = email
              session ['ID'] = ID
+             session['email'] = email
+             session['name'] = name
              print(session)
              return redirect('/listings')
 
@@ -135,10 +147,15 @@ def render_signup():
     return render_template('signup.html')
 
 
-if __name__ == '__main__':
-    app.run()
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
     session.clear()
     return redirect('/?message=successfully logged out')
+
+def delete_listing():
+    con = connect_database('DATABASE')
+    query = "DELETE FROM user_listings WHERE ID=?"
+
+    if __name__ == '__main__':
+        app.run()
