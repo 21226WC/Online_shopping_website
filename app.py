@@ -45,21 +45,19 @@ def render_homepage():
 
 @app.route('/listings')
 def render_listing():
-   con = connect_database('DATABASE')
-   query = "SELECT title, description, price, image_id, name from user_listings INNER JOIN signup_users ON user_listings.ID=signup_users.ID"
-   temp_query = "SELECT * FROM sqlite_master"
-   print(query)
-   cur = con.cursor()
-   cur.execute(query)
-   listings = cur.fetchall()
-   con.close()
-   return render_template('listings.html', listings_info=listings,log_in=logged_in())
+    con = connect_database('DATABASE')
+    query = "SELECT title, description, price, image_id, name, listing_id FROM user_listings INNER JOIN signup_users ON user_listings.ID=signup_users.ID"
+    cur = con.cursor()
+    cur.execute(query)
+    listings = cur.fetchall()
+    con.close()
+    return render_template('listings.html', listings_info=listings, log_in=logged_in())
 
 
 @app.route('/my_listings')
 def render_my_listings():
    con = connect_database('DATABASE')
-   query = "SELECT title, description, price, image_id, name from user_listings INNER JOIN signup_users ON user_listings.ID=signup_users.ID where user_listings.ID = ?"
+   query = "SELECT title, description, price, image_id, name, listing_id from user_listings INNER JOIN signup_users ON user_listings.ID=signup_users.ID where user_listings.ID = ?"
    cur = con.cursor()
    cur.execute(query, (session['ID'],))
    my_listings = cur.fetchall()
@@ -109,8 +107,8 @@ def render_listings():
              return redirect('/login?error=email_or_password_incorrect')
          else:
              session ['ID'] = ID
-             session['email'] = email
-             session['name'] = name
+             session ['email'] = email
+             session ['name'] = name
              print(session)
              return redirect('/listings')
 
@@ -129,21 +127,40 @@ def render_signup():
         password = request.form['upassword'].strip()
         confirmpassword = request.form['cpassword'].strip()
         email = request.form['uemail'].lower().strip()
+        admin_code = request.form['admin_code']
+
 
         if password != confirmpassword:
-            return redirect("Passwords_do_not_match")
+            return redirect('/signup?error=passwords_dont_match')
         if len(password) < 8:
-            return redirect("Password_too_short")
+            return redirect('/signup?error=password_too_short')
+        if len(username) > 50:
+            return redirect('/signup?error=user_name_too_long')
+        if len(email) > 50:
+            return redirect('/signup?error=email_too_long')
+        if len(password) > 30:
+            return redirect('/signup?error=password_too_long')
+
+        is_admin=1 if admin_code == '1992' else 0
 
         hashed_password = bcrypt.generate_password_hash(password)
 
-        con = connect_database('DATABASE')
-        query_insert = "INSERT INTO signup_users (name, email, password) VALUES (?, ?, ?)"
-        cur = con.cursor()
-        cur.execute(query_insert, (username, email, hashed_password))
-        con.commit()
-        con.close()
-        return render_template('login.html')
+        if is_admin == 1:
+            con = connect_database('DATABASE')
+            query_insert = "INSERT INTO signup_users (name, email, password, admin) VALUES (?, ?, ?, ?)"
+            cur = con.cursor()
+            cur.execute(query_insert, (username, email, hashed_password, is_admin))
+            con.commit()
+            con.close()
+
+        else:
+            con = connect_database('DATABASE')
+            query_insert = "INSERT INTO signup_users (name, email, password, admin) VALUES (?, ?, ?)"
+            cur = con.cursor()
+            cur.execute(query_insert, (username, email, hashed_password))
+            con.commit()
+            con.close()
+        return redirect("/login")
     return render_template('signup.html')
 
 
@@ -153,9 +170,22 @@ def logout():
     session.clear()
     return redirect('/?message=successfully logged out')
 
-def delete_listing():
-    con = connect_database('DATABASE')
-    query = "DELETE FROM user_listings WHERE ID=?"
 
-    if __name__ == '__main__':
-        app.run()
+@app.route('/delete_listing', methods=['POST'])
+def delete_listing():
+    listing_id = request.form.get('listing_id')
+
+    if not listing_id:
+        return redirect('/my_listings')
+    else:
+        con = connect_database('DATABASE')
+        cur = con.cursor()
+        cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
+        con.commit()
+        con.close()
+
+    return redirect('/my_listings')
+
+
+if __name__ == '__main__':
+    app.run()
