@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block pageheading %}Admin{% endblock %}
+
+{% block main %}
+    {% for listings in admin_listings %}
+        <div class="product-box">
+            <h3 class="product-box-heading">{{ listings[0] }}</h3>
+            <p class="description">{{ listings[1] }}</p>
+            <img src="static/images/{{ listings[3] }}.jpg" alt="{{ listings[0] }}" class="listing-image">
+            <p class="price">Price: {{ listings[2] }}</p>
+            <p class="owner">Listing owned by: {{ listings[4] }}</p>
+
+            <form method="post" action="/delete_listing" onsubmit = "return confirm('are you sure?');">
+                <input type="hidden" name="listing_id" value="{{ listings[5] }}">
+                <button type="submit" class="delete-button">Delete Listing</button>
+            </form>
+        </div>
+    {% endfor %}
+{% endblock %}

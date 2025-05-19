@@ -41,7 +41,15 @@ def logged_in():
 @app.route('/')
 def render_homepage():
     return render_template('home.html',log_in=logged_in())
-
+@app.route('/admin')
+def render_admin():
+    con = connect_database('DATABASE')
+    query = "SELECT title, description, price, image_id, name, listing_id FROM user_listings INNER JOIN signup_users ON user_listings.ID=signup_users.ID"
+    cur = con.cursor()
+    cur.execute(query)
+    admin_listings = cur.fetchall()
+    con.close()
+    return render_template('admin.html',admin_listings=admin_listings, log_in=logged_in())
 
 @app.route('/listings')
 def render_listing():
