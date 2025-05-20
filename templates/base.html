@@ -3,11 +3,11 @@
 
 <head>
     <meta charset="utf-8">
-    <title>smile | home</title>
+    <title>Trade You | home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"/>
-    <link href="{{ url_for('static', filename='smile.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='trade_you.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -16,7 +16,10 @@
         <div class="navbar-brand">smile.</div>
         <div class="navbar-links">
             <a href="/">home</a>
-            <a href="/admin">admin</a>
+            {% if admin == True %}
+                <a href="/admin">admin</a>
+            {% else %}
+            {% endif %}
 
 
             {% if log_in == True %}

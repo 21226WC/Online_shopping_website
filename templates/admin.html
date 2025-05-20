@@ -11,7 +11,7 @@
             <p class="price">Price: {{ listings[2] }}</p>
             <p class="owner">Listing owned by: {{ listings[4] }}</p>
 
-            <form method="post" action="/delete_listing" onsubmit = "return confirm('are you sure?');">
+            <form method="post" action="/delete_listing_admin" onsubmit = "return confirm('are you sure?');">
                 <input type="hidden" name="listing_id" value="{{ listings[5] }}">
                 <button type="submit" class="delete-button">Delete Listing</button>
             </form>

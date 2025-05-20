@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block pageheading %}Listing Details{% endblock %}
+
+{% block main %}
+    <div class="listing-details">
+        <h2>{{ listing[1] }}</h2>  <!-- Title -->
+        <img src="static/images/{{ listing[4] }}.jpg" class="large-image">
+        <div class="details-section">
+            <h3>Description</h3>
+            <p>{{ listing[2] }}</p>  <!-- Description -->
+
+            <h3>Price</h3>
+            <p>${{ "%.2f"|format(listing[3]) }}</p>
+
+            <h3>Seller Contact</h3>
+            <ul class="contact-info">
+                <li>Email: <a href="mailto:{{ seller_email }}">{{ seller_email }}</a></li>
+                {% if seller_phone %}
+                <li>Phone: {{ seller_phone }}</li>
+                {% endif %}
+            </ul>
+
+            <form method="post" action="/confirm_purchase/{{ listing[0] }}">
+                <button type="submit" class="confirm-button">Confirm Purchase</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

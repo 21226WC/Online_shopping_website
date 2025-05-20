@@ -36,6 +36,29 @@ def logged_in():
         return True
 
 
+def is_admin():
+    if session.get("admin") == 1:
+        print("is admin")
+        return True
+    else:
+        print("not admin")
+        return False
+@app.route("/buy_listing")
+def buy_listing():
+
+    listing_id = request.form.get('listing_id')
+
+    if not listing_id:
+        return redirect('/my_listings')
+    else:
+        con = connect_database('DATABASE')
+        cur = con.cursor()
+        cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
+        con.commit()
+        con.close()
+    return redirect("/view_listing")
+
+
 
 
 @app.route('/')
@@ -49,7 +72,7 @@ def render_admin():
     cur.execute(query)
     admin_listings = cur.fetchall()
     con.close()
-    return render_template('admin.html',admin_listings=admin_listings, log_in=logged_in())
+    return render_template('admin.html',admin_listings=admin_listings, log_in=logged_in(), admin=is_admin())
 
 @app.route('/listings')
 def render_listing():
@@ -59,7 +82,7 @@ def render_listing():
     cur.execute(query)
     listings = cur.fetchall()
     con.close()
-    return render_template('listings.html', listings_info=listings, log_in=logged_in())
+    return render_template('listings.html', listings_info=listings, log_in=logged_in(), admin=is_admin())
 
 
 @app.route('/my_listings')
@@ -70,7 +93,35 @@ def render_my_listings():
    cur.execute(query, (session['ID'],))
    my_listings = cur.fetchall()
    con.close()
-   return render_template('My_listings.html',my_listings=my_listings, log_in=logged_in())
+   return render_template('My_listings.html',my_listings=my_listings, log_in=logged_in(), admin=is_admin())
+
+@app.route('/delete_listing', methods=['POST'])
+def delete_listing():
+    listing_id = request.form.get('listing_id')
+
+    if not listing_id:
+        return redirect('/my_listings')
+    else:
+        con = connect_database('DATABASE')
+        cur = con.cursor()
+        cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
+        con.commit()
+        con.close()
+    return redirect('/my_listings')
+
+@app.route('/delete_listing_admin', methods=['POST'])
+def delete_listing_admin():
+    listing_id = request.form.get('listing_id')
+
+    if not listing_id:
+        return redirect('/admin')
+    else:
+        con = connect_database('DATABASE')
+        cur = con.cursor()
+        cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
+        con.commit()
+        con.close()
+    return redirect('/admin')
 
 
 @app.route('/create_listing', methods=['GET', 'POST'])
@@ -86,7 +137,7 @@ def create_listing():
         cur.execute(query_insert, (title, description, price, ID))
         con.commit()
         con.close()
-    return render_template('creating_listing.html', log_in=logged_in())
+    return render_template('creating_listing.html', log_in=logged_in(), admin=is_admin())
 
 
 
@@ -109,6 +160,7 @@ def render_listings():
              name = user_info[0][1]
              email = user_info[0][2]
              login_password = user_info[0][3]
+             admin = user_info[0][4]
          except IndexError:
              return redirect('/login?error=email_or_password_incorrect')
          if not bcrypt.check_password_hash(login_password, password):
@@ -117,11 +169,12 @@ def render_listings():
              session ['ID'] = ID
              session ['email'] = email
              session ['name'] = name
+             session ['admin'] = admin
              print(session)
              return redirect('/listings')
 
 
-     return render_template('login.html',log_in=logged_in())
+     return render_template('login.html',log_in=logged_in(), admin=is_admin())
 
 
 
@@ -178,21 +231,6 @@ def logout():
     session.clear()
     return redirect('/?message=successfully logged out')
 
-
-@app.route('/delete_listing', methods=['POST'])
-def delete_listing():
-    listing_id = request.form.get('listing_id')
-
-    if not listing_id:
-        return redirect('/my_listings')
-    else:
-        con = connect_database('DATABASE')
-        cur = con.cursor()
-        cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
-        con.commit()
-        con.close()
-
-    return redirect('/my_listings')
 
 
 if __name__ == '__main__':
