@@ -1,28 +1,33 @@
 {% extends "base.html" %}
 
 {% block main %}
-
 <div>
   <h2>{{ view_listings[0] }}</h2>
 
-  <img src="{{ url_for('static', filename='images/' + view_listings[3] + '.jpg') }}"
-       alt="{{ view_listings[0] }}">
+  <img src="/static/images/{{ view_listings[3] }}.jpg" alt="{{ view_listings[0] }}" class="listing-image">
 
   <p><strong>Description:</strong> {{ view_listings[1] }}</p>
   <p><strong>Price:</strong> ${{ view_listings[2] }}</p>
   <p><strong>Seller:</strong> {{ view_listings[4] }}</p>
 
-  <div class="button-group" style="margin-top: 20px;">
+  <div style="margin-top: 20px;">
     <form action="/contact_seller" method="post" style="display: inline;">
       <input type="hidden" name="seller_name" value="{{ view_listings[4] }}">
       <button type="submit">Contact Seller</button>
     </form>
 
+    {% if my_listings %}
     <form action="/trade" method="post" style="display: inline;">
-      <input type="hidden" name="listing_id" value="{{ request.form.get('view_listing_id') }}">
-      <button type="submit">TRADE</button>
+      <input type="hidden" name="target_listing_id" value="{{ view_listing_id }}">
+      <label for="my_listing">Offer Your Listing:</label>
+      <select name="my_listing_id" required>
+        {% for listing in my_listings %}
+          <option value="{{ listing[0] }}">{{ listing[1] }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Propose Trade</button>
     </form>
+    {% endif %}
   </div>
 </div>
-
 {% endblock %}
