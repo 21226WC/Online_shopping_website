@@ -198,6 +198,20 @@ def trade():
 
 @app.route('/confirm_trade', methods=['GET', 'POST'])
 def confirm_trade():
+    trade_id = request.form.get('trade_id')
+
+    if not trade_id:
+        return redirect('/trade')
+    else:
+        con = connect_database('DATABASE')
+        cur = con.cursor()
+        # deletes the listing when the trade is confirmed
+        cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
+        cur.execute("DELETE FROM trades WHERE trade_id = ?", (trade_id,))
+        con.commit()
+        con.close()
+    return redirect('/trade')
+
 
 
 
