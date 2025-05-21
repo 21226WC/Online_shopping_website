@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block pageheading %}Listings{% endblock %}
+{% block pageheading %}All Listings{% endblock %}
 
 {% block main %}
     {% for listings in listings_info %}
@@ -11,8 +11,8 @@
             <p> Price: {{ listings[2] }} </p>
             <p> listing owned by: {{ listings[4] }} </p>
 
-            <form method="post" action="/buy_listing" onsubmit = "return confirm('are you sure you want to buy this listing?');">
-                <input type="hidden" name="listing_id" value="{{ listings[5] }}">
+            <form method="post" action="/view_listing">
+                <input type="hidden" name="view_listing_id" value="{{ listings[5] }}">
                 <button type="submit" class="button">BUY NOW</button>
             </form>
         </div>

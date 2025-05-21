@@ -1,10 +1,8 @@
-from idlelib import query
-from itertools import product
 
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
 from sqlite3 import Error
-from flask_bcrypt import bcrypt, Bcrypt
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -43,22 +41,6 @@ def is_admin():
     else:
         print("not admin")
         return False
-@app.route("/buy_listing")
-def buy_listing():
-
-    listing_id = request.form.get('listing_id')
-
-    if not listing_id:
-        return redirect('/my_listings')
-    else:
-        con = connect_database('DATABASE')
-        cur = con.cursor()
-        cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
-        con.commit()
-        con.close()
-    return redirect("/view_listing")
-
-
 
 
 @app.route('/')
@@ -93,7 +75,26 @@ def render_my_listings():
    cur.execute(query, (session['ID'],))
    my_listings = cur.fetchall()
    con.close()
-   return render_template('My_listings.html',my_listings=my_listings, log_in=logged_in(), admin=is_admin())
+   return render_template('my_listings.html', my_listings=my_listings, log_in=logged_in(), admin=is_admin())
+
+@app.route('/view_listing', methods=['POST'])
+def view_listing():
+    listing_id = request.form.get('view_listing_id')
+    print(listing_id)
+    query = """
+    SELECT title, description, price, image_id, name
+    FROM user_listings 
+    INNER JOIN signup_users ON signup_users.ID = user_listings.ID
+    WHERE listing_id = ?
+"""
+    con = connect_database('DATABASE')
+    cur = con.cursor()
+    cur.execute(query, (listing_id,))
+    view_listings = cur.fetchone()
+    con.close()
+    return render_template('view_listing.html', view_listings=view_listings, log_in=logged_in(), admin=is_admin())
+
+
 
 @app.route('/delete_listing', methods=['POST'])
 def delete_listing():
@@ -137,14 +138,17 @@ def create_listing():
         cur.execute(query_insert, (title, description, price, ID))
         con.commit()
         con.close()
+        return redirect('/my_listings')
     return render_template('creating_listing.html', log_in=logged_in(), admin=is_admin())
 
 
 
 
 
+
+
 @app.route('/login', methods=['GET', 'POST'])
-def render_listings():
+def login():
      if request.method == 'POST':
          email = request.form['user_email'].lower().strip()
          password = request.form['user_password'].strip()
@@ -201,6 +205,8 @@ def render_signup():
             return redirect('/signup?error=email_too_long')
         if len(password) > 30:
             return redirect('/signup?error=password_too_long')
+        if len(admin_code) > 4:
+            return redirect('/signup?error=admin_code_error')
 
         is_admin=1 if admin_code == '1992' else 0
 

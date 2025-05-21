@@ -1,29 +1,26 @@
-{% extends 'base.html' %}
-
-{% block pageheading %}Listing Details{% endblock %}
-
 {% block main %}
-    <div class="listing-details">
-        <h2>{{ listing[1] }}</h2>  <!-- Title -->
-        <img src="static/images/{{ listing[4] }}.jpg" class="large-image">
-        <div class="details-section">
-            <h3>Description</h3>
-            <p>{{ listing[2] }}</p>  <!-- Description -->
 
-            <h3>Price</h3>
-            <p>${{ "%.2f"|format(listing[3]) }}</p>
+<div class="container">
+        <h1>Listing Details</h1>
 
-            <h3>Seller Contact</h3>
-            <ul class="contact-info">
-                <li>Email: <a href="mailto:{{ seller_email }}">{{ seller_email }}</a></li>
-                {% if seller_phone %}
-                <li>Phone: {{ seller_phone }}</li>
-                {% endif %}
-            </ul>
+        {% if view_listings %}
+            <div class="product-box">
+                <div class="product-box-heading">
+                    <h2>{{ view_listings[0] }}</h2>
+                </div>
 
-            <form method="post" action="/confirm_purchase/{{ listing[0] }}">
-                <button type="submit" class="confirm-button">Confirm Purchase</button>
-            </form>
+                <div class="product-box-image">
+                    <img src="static/images/{{ view_listings[3] }}.jpg">
+                </div>
+
+                <div class="product-box-info">
+                    <p><strong>Description:</strong> {{ view_listings[1] }}</p>
+                    <p><strong>Price:</strong> ${{ view_listings[2] }}</p>
+                    <p><strong>Seller:</strong> {{ view_listings[4] }}</p>
+                </div>
+            </div>
         </div>
-    </div>
+        {% endif %}
+
 {% endblock %}
+
