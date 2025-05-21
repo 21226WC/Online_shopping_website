@@ -1,26 +1,28 @@
+{% extends "base.html" %}
+
 {% block main %}
 
-<div class="container">
-        <h1>Listing Details</h1>
+<div>
+  <h2>{{ view_listings[0] }}</h2>
 
-        {% if view_listings %}
-            <div class="product-box">
-                <div class="product-box-heading">
-                    <h2>{{ view_listings[0] }}</h2>
-                </div>
+  <img src="{{ url_for('static', filename='images/' + view_listings[3] + '.jpg') }}"
+       alt="{{ view_listings[0] }}">
 
-                <div class="product-box-image">
-                    <img src="static/images/{{ view_listings[3] }}.jpg">
-                </div>
+  <p><strong>Description:</strong> {{ view_listings[1] }}</p>
+  <p><strong>Price:</strong> ${{ view_listings[2] }}</p>
+  <p><strong>Seller:</strong> {{ view_listings[4] }}</p>
 
-                <div class="product-box-info">
-                    <p><strong>Description:</strong> {{ view_listings[1] }}</p>
-                    <p><strong>Price:</strong> ${{ view_listings[2] }}</p>
-                    <p><strong>Seller:</strong> {{ view_listings[4] }}</p>
-                </div>
-            </div>
-        </div>
-        {% endif %}
+  <div class="button-group" style="margin-top: 20px;">
+    <form action="/contact_seller" method="post" style="display: inline;">
+      <input type="hidden" name="seller_name" value="{{ view_listings[4] }}">
+      <button type="submit">Contact Seller</button>
+    </form>
+
+    <form action="/trade" method="post" style="display: inline;">
+      <input type="hidden" name="listing_id" value="{{ request.form.get('view_listing_id') }}">
+      <button type="submit">TRADE</button>
+    </form>
+  </div>
+</div>
 
 {% endblock %}
-
