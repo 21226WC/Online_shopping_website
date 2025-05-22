@@ -3,30 +3,36 @@
 {% block main %}
 <h1>Trade Requests</h1>
 
+{% for trade in trade_requests %}
+    <p><strong>Trade ID:</strong> {{ trade[0] }}</p>
 
+    <h3>Requested Listing</h3>
+    <p><strong>Title:</strong> {{ trade[2][0] }}</p>
+    <p><strong>Description:</strong> {{ trade[2][1] }}</p>
+    <p><strong>Price:</strong> {{ trade[2][2] }}</p>
+    <p><strong>Owner:</strong> {{ trade[2][3] }}</p>
+    <br>
+    <br>
+    <h3>Offered Listing</h3>
+    <p><strong>Title:</strong> {{ trade[3][0] }}</p>
+    <p><strong>Description:</strong> {{ trade[3][1] }}</p>
+    <p><strong>Price:</strong> {{ trade[3][2] }}</p>
+    <p><strong>Owner:</strong> {{ trade[3][3] }}</p>
+    <br>
+    <p><strong>Status:</strong> {{ trade[1] }}</p>
 
-    {% for listings in trade_requests %}
-        <p><strong>Trade ID:</strong> {{ trade_requests[0][0] }}</p>
-        <p><strong>Listing ID:</strong> {{ trade_requests[0][1] }}</p>
-        <p><strong>User ID</strong> {{ trade_requests[0][2] }}</p>
-        <p><strong>Status:</strong> {{ trade_requests[0][3] }}</p>
-        {% if trade_requests[0][3] == 'pending' %}
-          <form action="/approve_trade" method="post" style="display:inline;">
-            <input type="hidden" name="trade_id" value="{{ trade_requests[0][0] }}">
-            <button>Approve</button>
-          </form>
-          <form action="/reject_trade" method="post" style="display:inline;">
-            <input type="hidden" name="trade_id" value="{{ trade_requests[0][0] }}">
-            <button>Reject</button>
-          </form>
-            <br>
-            <br>
-            <br>
-        {% else %}
-          <p>No actions available</p>
-        {% endif %}
-
-    {% endfor %}
-
+    {% if trade[1] == 'pending' %}
+      <form action="/approve_trade" method="post" style="display:inline;">
+        <input type="hidden" name="trade_id" value="{{ trade[0] }}">
+        <button>Approve</button>
+      </form>
+      <form action="/reject_trade" method="post" style="display:inline;">
+        <input type="hidden" name="trade_id" value="{{ trade[0] }}">
+        <button>Reject</button>
+      </form>
+    {% else %}
+      <p>No actions available</p>
+    {% endif %}
+{% endfor %}
 
 {% endblock %}

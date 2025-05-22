@@ -1,205 +1,192 @@
 * {
-    font-family: 'Manrope', sans-serif;
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
 }
 
 body {
-    background-color: rgba(30, 10, 20, 0.2);
+  background-color: rgba(90, 0, 150, 0.2);
+  color: rgba(51, 51, 51, 1);
+  padding: 20px;
 }
 
 .container {
-    width: 60vw;
-    margin: auto;
-    /*background-color: rgba(52, 73, 94, 1.0);*/
-    /*color: rgba(236, 240, 241, 1.0);*/
-}
-
-.container::after {
-    content: "";
-    clear: both;
-    display: table;
+  max-width: 60vw;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
 }
 
 img {
-    max-width: 100%;
+  max-width: 100%;
+  border-radius: 8px;
+  display: block;
+  margin: 0 auto 1rem auto;
+}
+
+h1, h2 {
+  text-align: center;
+  font-weight: 300;
+  margin-bottom: 1rem;
+  color: rgba(34, 34, 34, 1);
 }
 
 h1 {
-    text-align: center;
-    font-weight: 200;
-    font-size: 4rem;
-    margin: 0;
+  font-size: 3rem;
 }
 
 h2 {
-    font-size: 2rem;
-    text-align: center;
-    margin: 0 0 0.5rem 0;
+  font-size: 2rem;
 }
 
 nav {
-    background-color: rgba(0, 40, 40, 2.0); /* darkest blue */
-    text-align: center;
-    /*color: rgba(52, 152, 219, 1.0);!*light blue*!*/
-    font-size: 1.5rem;
-    padding-top: 0.4rem;
-    padding-bottom: 0.7rem;
-    color: rgba(52, 152, 219, 1.0); /*light blue*/
+  background-color: rgba(0, 40, 40, 1);
+  color: rgba(52, 152, 219, 1);
+  font-size: 1.5rem;
+  padding: 0.5rem 0;
+  text-align: center;
 }
 
-.navbar-brand {
-    display: inline;
-    float: left;
-}
-
-.navbar-links {
-    display: inline;
-    float: right;
-}
-
-nav a {
-    /*margin:0 0.5rem;*/
-    padding: 0 0.5rem;
-    font-size: 1.5rem;
-
-    /*border: 1px solid rgba(52, 152, 219, 1.0);*/
-    /*border-radius:0.5rem;*/
-}
-
-nav a:hover {
-    /*color: rgba(44, 62, 80, 1.0); !* darkest blue *!*/
-    /*background-color: rgba(52, 152, 219, 1.0); !*light blue*!*/
-    border-bottom: 3px solid rgba(52, 152, 219, 1.0);
-}
-
-a, a:visited {
-    color: rgba(52, 152, 219, 1.0);
-    /*color:hotpink;*/
-    text-decoration: none;
-}
-
-.product-box img {
-    /*max-width:200px;*/
-}
 
 .products {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-evenly;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4rem;
 }
 
 .product-box {
-    /*width: 13vw;*/
-    width: 32%;
-    /*float: left;*/
-    /*display: table-cell;*/
-    /*padding: 0.5rem;*/
-    /*margin: 1vw;*/
-    border: 5px solid rgba(0, 50, 50, 1.0);
-    color: rgba(44, 62, 80, 1.0);
-    margin-bottom: 6rem;
-}
-
-.product-box-heading {
-    padding: 0.5rem;
-}
-
-.product-box-image {
-    height: 300px;
-    overflow: hidden;
-}
-
-.product-box-info {
-    padding: 0.5rem;
-
+  flex: 1 1 30%;
+  background: rgba(255, 255, 255, 1);
+  border: 3px solid rgba(0, 102, 102, 1);
+  border-radius: 8px;
+  padding: 50px;
+  color: rgba(44, 62, 80, 1);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
 .product-box h3 {
-    font-size: 1.8rem;
-    text-align: center;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
 }
 
 .product-box p {
-    font-size: 0.8rem;
-    margin-bottom: 0.3rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
 }
 
 .product-box a {
-    border: 3px solid tomato;
-    padding: 0.3rem;
-    text-align: center;
+  display: block;
+  text-align: center;
+  border: 2px solid rgba(255, 99, 71, 1);
+  border-radius: 5px;
+  padding: 0.5rem;
+  color: rgba(255, 99, 71, 1);
+  text-decoration: none;
+  font-weight: 600;
 }
 
 .myform {
-    width: 80%;
-    margin: auto;
-    padding-top: 3rem;
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 1);
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .form-group {
-    padding-top: 3rem;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
 }
 
 .form-label {
-    width: 30%;
-    float: left;
-    padding: 0.3rem;
+  float: left;
+  width: 30%;
+  font-weight: 600;
+  color: rgba(68, 68, 68, 1);
+  padding-top: 0.5rem;
 }
 
 .form-element {
-    width: 70%;
-    float: left;
+  float: left;
+  width: 70%;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid rgba(204, 204, 204, 1);
+  border-radius: 6px;
 }
 
 .button-group {
-    margin-top: 3rem;
-    text-align: center;
+  text-align: center;
 }
 
-.button-group input {
-    padding: 0.3rem;
+.button-group input, button {
+  background-color: rgba(52, 152, 219, 1);
+  color: white;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s ease;
 }
 
-.form-group input {
-    padding: 0.3rem;
-    width: 100%;
+.button-group input:hover, button:hover {
+  background-color: rgba(41, 128, 185, 1);
 }
 
 table {
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 2rem;
 }
 
-.cart-table > thead {
-    font-weight: bold;
+.cart-table th, .cart-table td {
+  border: 2px solid rgba(221, 221, 221, 1);
+  padding: 0.8rem 1rem;
+  text-align: center;
 }
 
-.cart-table td {
-    padding: 0.2rem 1rem;
-    text-align: center;
-    border: 3px solid #ddd;
+.cart-table th {
+  background-color: rgba(52, 152, 219, 1);
+  color: white;
+  font-weight: 600;
 }
 
 .cart-total {
-    font-weight: bold;
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-align: right;
+  margin-top: 1rem;
 }
 
-
-@media only screen and (max-width: 600px) {
-    .container {
-        width: 100%;
-    }
-
-    .product-box {
-        width: 100%;
-    }
+@media (max-width: 900px) {
+  .container {
+    max-width: 95vw;
+  }
+  .products {
+    flex-direction: column;
+  }
+  .product-box {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  .form-label, .form-element {
+    float: none;
+    width: 100%;
+  }
+  .form-label {
+    margin-bottom: 0.5rem;
+  }
 }
-
-
-@media only screen and (max-width: 2000px) {
-    .product-box {
-        width: 100%;
-    }
-}
-

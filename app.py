@@ -241,46 +241,55 @@ def reject_trade():
 
     return redirect('/declined_trade')
 
-@app.route('/trade_requests', methods=['POST','GET'])
+@app.route('/trade_requests', methods=['POST', 'GET'])
 def trade_requests():
     if request.method == 'GET':
         user_id = session['ID']
-        print(user_id)
         con = connect_database(DATABASE)
         cur = con.cursor()
+
         query = """
-        SELECT * 
-        FROM trades 
+        SELECT trade_id, listing_id, user_id, offered_listing_id, status
+        FROM trades
         WHERE user_id = ?
         """
         cur.execute(query, (user_id,))
-        trade_requests_id = cur.fetchall()
-        con.close()
-        print(trade_requests_id)
+        trade_requests_data = cur.fetchall()
+        print(trade_requests_data)
 
+        trade_details = []
 
-        query_listing = """
-            SELECT title, description, price, name
-            FROM user_listings
-            WHERE listing_id = ?
-            """
-        cur.execute(query_listing, (trade_requests_id[0][1],))
-
-        query = """
-            SELECT title, description, price, name
-            FROM user_listings
+        for trade in trade_requests_data:
+            cur.execute("""
+            SELECT title, description, price, name 
+            FROM user_listings 
             INNER JOIN signup_users ON signup_users.ID = user_listings.ID
-            WHERE listing_id = ?
-            """
+            WHERE listing_id = ?""", (trade[1],))
+            offered = cur.fetchone()
+            print(offered)
+
+            cur.execute("""
+            SELECT title, description, price, name 
+            FROM user_listings 
+            INNER JOIN signup_users ON signup_users.ID = user_listings.ID
+            WHERE listing_id = ?""", (trade[3],))
+            requested = cur.fetchone()
+            print(requested)
+
+            trade_details = trade_details + [[trade[0], trade[4], offered, requested]]
+            print(trade_details)
+
+        con.close()
 
         return render_template('trade_requests.html',
-                               trade_requests=trade_requests_id,
+                               trade_requests=trade_details,
                                log_in=logged_in(),
                                admin=is_admin())
     else:
         return render_template('trade_requests.html',
                                log_in=logged_in(),
                                admin=is_admin())
+
 
 
 # Route to handle user login
