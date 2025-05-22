@@ -10,12 +10,7 @@
   <p><strong>Price:</strong> ${{ view_listings[2] }}</p>
   <p><strong>Seller:</strong> {{ view_listings[4] }}</p>
 
-  <div style="margin-top: 20px;">
-    <form action="/contact_seller" method="post" style="display: inline;">
-      <input type="hidden" name="seller_name" value="{{ view_listings[4] }}">
-      <button type="submit">Contact Seller</button>
-    </form>
-
+  <div>
     {% if my_listings %}
     <form action="/trade" method="post" style="display: inline;">
       <input type="hidden" name="target_listing_id" value="{{ view_listing_id }}">
@@ -29,5 +24,5 @@
     </form>
     {% endif %}
   </div>
-</div>
+<div/>
 {% endblock %}

@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session
 import sqlite3
 from sqlite3 import Error
 from flask_bcrypt import Bcrypt
+#importing things i will need
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -19,7 +20,7 @@ def connect_database(db_file):
         print("An error has occurred when connecting to database")
 
 # Function to check whether a user is currently logged in
-# Returns True if session contains a user ID, False otherwise
+# Returns True if session contains a user ID
 def logged_in():
     if session.get("ID") == None:  # If session does not contain 'ID', user is not logged in
         print("Not logged in")
@@ -29,7 +30,7 @@ def logged_in():
         return True
 
 # Function to determine if the logged-in user is an administrator
-# Returns True if session indicates admin status (1), False otherwise
+# Returns True if session indicates admin status (1)
 def is_admin():
     if session.get("admin") == 1:  # Check if the session value for 'admin' is set to 1
         print("is admin")
@@ -45,18 +46,20 @@ def render_homepage():
                            log_in=logged_in())  # Render homepage and pass login status
 
 # Route for the admin dashboard that displays all listings from all users
+# returns rendering the admin html file and listing info to be displayed
 @app.route('/admin')
 def render_admin():
     con = connect_database('DATABASE')
     # Query to join user_listings with signup_users to retrieve listing and user details
+    # this is to let any admin delete all listings where normal users can only delete their own
     query = """
     SELECT title, description, price, image_id, name, listing_id 
     FROM user_listings 
     INNER JOIN signup_users ON user_listings.ID=signup_users.ID
     """
     cur = con.cursor()
-    cur.execute(query)  # Execute the query
-    admin_listings = cur.fetchall()  # Retrieve all matching records
+    cur.execute(query)
+    admin_listings = cur.fetchall()  # Retrieve all rows from table listings
     con.close()
     return render_template('admin.html',
                            admin_listings=admin_listings,
@@ -68,6 +71,8 @@ def render_admin():
 def render_listing():
     con = connect_database('DATABASE')
     # Same query as admin, but shown to regular users
+    # displays all listings for users to see but in the html it doesnt give them the option to delete them
+    # only to trade returns the listing html and listing info
     query = """
     SELECT title, description, price, image_id, name, listing_id 
     FROM user_listings 
@@ -83,6 +88,8 @@ def render_listing():
                            admin=is_admin())
 
 # Route to display listings that belong to the currently logged-in user
+# this has basically the same code as the other rendering listings, but this shows your own listings
+# so you can delete them
 @app.route('/my_listings')
 def render_my_listings():
     con = connect_database('DATABASE')
@@ -103,6 +110,11 @@ def render_my_listings():
                            admin=is_admin())
 
 # Route to view a specific listing selected by the user
+# renders a page where only the clicked on listing is shown
+# gives the info for a button and a drop down to trade where
+# you select one of your own listings to trade for someone else's on the html file
+# returns the view listing html file and info about the displayed listing aswell
+# as your current listing info for the dropdown select
 @app.route('/view_listing', methods=['POST'])
 def view_listing():
     listing_id = request.form.get('view_listing_id')
@@ -120,7 +132,7 @@ def view_listing():
     cur.execute(query, (listing_id,))
     view_listings = cur.fetchone()
 
-    # Get the current user's own listings to offer
+    # Get the current user's own listings to offer for drop down
     my_listings = []
     if logged_in():
         cur.execute("SELECT listing_id, title FROM user_listings WHERE ID = ?", (session['ID'],))
@@ -136,6 +148,8 @@ def view_listing():
                            admin=is_admin())
 
 # Route to delete a listing created by the user
+# a delete button is on the my listings html page where it calls this action and passes the listing id
+# for it to be deleted
 @app.route('/delete_listing', methods=['POST'])
 def delete_listing():
     listing_id = request.form.get('listing_id')  # Get the listing ID
@@ -152,6 +166,7 @@ def delete_listing():
     return redirect('/my_listings')
 
 # Route for admin to delete any listing
+# same code as before but can you be called from the admin page to delete any listing
 @app.route('/delete_listing_admin', methods=['POST'])
 def delete_listing_admin():
     listing_id = request.form.get('listing_id')
@@ -161,16 +176,16 @@ def delete_listing_admin():
     else:
         con = connect_database('DATABASE')
         cur = con.cursor()
-        # Same deletion logic as above but accessible by admin
         cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
         con.commit()
         con.close()
     return redirect('/admin')
 
 # Route for creating a new listing
+# receives info from the html page and inserts it into user_listings table
 @app.route('/create_listing', methods=['GET', 'POST'])
 def create_listing():
-    if request.method == 'POST':  # If user submitted the form
+    if request.method == 'POST':  # If user submitted the form info is passed
         title = request.form['title'].title().strip()
         description = request.form['description'].strip()
         price = request.form['price'].strip()
@@ -188,26 +203,35 @@ def create_listing():
                            log_in=logged_in(),
                            admin=is_admin())
 
-
+# inserts a trade request into the trades table
 @app.route('/trade', methods=['POST','GET'])
 def trade():
-    if not logged_in():
+    if not logged_in(): # makes sure user is logged in
         return redirect('/login')
 
-    target_listing_id = request.form.get('target_listing_id')
-    offered_listing_id = request.form.get('my_listing_id')
-    user_id = session['ID']
+    target_listing_id = request.form.get('target_listing_id') #gets the listing that the user wants
+    offered_listing_id = request.form.get('my_listing_id') # gets the offered listing
+    user_id = session['ID'] # gets the current user ID from session
 
     if target_listing_id and offered_listing_id:
         con = connect_database(DATABASE)
         cur = con.cursor()
-        query = "INSERT INTO trades (listing_id, user_id, offered_listing_id, status) VALUES (?, ?, ?, ?)"
-        cur.execute(query, (target_listing_id, user_id, offered_listing_id, 'pending'))
+
+        # Get the owner of the target listing
+        cur.execute("SELECT ID FROM user_listings WHERE listing_id = ?", (target_listing_id,))
+        target_owner = cur.fetchone()
+        if not target_owner:
+            return redirect('/listings')
+        target_owner_id = target_owner[0]
+
+        # insert info into trade table with the correct offered_user_id
+        query = "INSERT INTO trades (listing_id, user_id, offered_listing_id, status, offered_user_id) VALUES (?, ?, ?, ?, ?)"
+        cur.execute(query, (target_listing_id, user_id, offered_listing_id, 'pending', target_owner_id))
         con.commit()
         con.close()
-        return redirect('/trade')
 
-    return redirect('/listings')
+    return redirect('/listings') # if full info is not provided, redirected back to all listings
+
 
 
 @app.route('/approve_trade', methods=['POST','GET'])
@@ -241,54 +265,54 @@ def reject_trade():
 
     return redirect('/declined_trade')
 
-@app.route('/trade_requests', methods=['POST', 'GET'])
+# looks if current user has any requests and gets info to be displayed
+# it does this by first querying the database
+@app.route('/trade_requests', methods=['GET'])
 def trade_requests():
-    if request.method == 'GET':
-        user_id = session['ID']
-        con = connect_database(DATABASE)
-        cur = con.cursor()
+    if not logged_in():
+        return redirect('/login')
 
-        query = """
-        SELECT trade_id, listing_id, user_id, offered_listing_id, status
-        FROM trades
-        WHERE user_id = ?
-        """
-        cur.execute(query, (user_id,))
-        trade_requests_data = cur.fetchall()
-        print(trade_requests_data)
+    user_id = session['ID']
 
-        trade_details = []
+    con = connect_database(DATABASE)
+    cur = con.cursor()
 
-        for trade in trade_requests_data:
-            cur.execute("""
-            SELECT title, description, price, name 
-            FROM user_listings 
-            INNER JOIN signup_users ON signup_users.ID = user_listings.ID
-            WHERE listing_id = ?""", (trade[1],))
-            offered = cur.fetchone()
-            print(offered)
+    query = """
+    SELECT trade_id, listing_id, user_id, offered_listing_id, status
+    FROM trades
+    WHERE offered_user_id = ?
+    """
+    cur.execute(query, (user_id,))
+    trade_requests_data = cur.fetchall()
 
-            cur.execute("""
-            SELECT title, description, price, name 
-            FROM user_listings 
-            INNER JOIN signup_users ON signup_users.ID = user_listings.ID
-            WHERE listing_id = ?""", (trade[3],))
-            requested = cur.fetchone()
-            print(requested)
+    trade_details = []
 
-            trade_details = trade_details + [[trade[0], trade[4], offered, requested]]
-            print(trade_details)
+    for trade in trade_requests_data:
+        # Get the requested listing (owned by this user)
+        cur.execute("""
+        SELECT title, description, price, name 
+        FROM user_listings 
+        INNER JOIN signup_users ON signup_users.ID = user_listings.ID
+        WHERE listing_id = ?""", (trade[1],))
+        requested = cur.fetchone()
 
-        con.close()
+        # Get the offered listing (owned by someone else)
+        cur.execute("""
+        SELECT title, description, price, name 
+        FROM user_listings 
+        INNER JOIN signup_users ON signup_users.ID = user_listings.ID
+        WHERE listing_id = ?""", (trade[3],))
+        offered = cur.fetchone()
 
-        return render_template('trade_requests.html',
-                               trade_requests=trade_details,
-                               log_in=logged_in(),
-                               admin=is_admin())
-    else:
-        return render_template('trade_requests.html',
-                               log_in=logged_in(),
-                               admin=is_admin())
+        trade_details.append([trade[0], trade[4], requested, offered])
+
+    con.close()
+
+    return render_template('trade_requests.html',
+                           trade_requests=trade_details,
+                           log_in=logged_in(),
+                           admin=is_admin())
+
 
 
 
