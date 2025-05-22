@@ -10,11 +10,13 @@
             <img src="static/images/{{ listings[3] }}.jpg" alt="{{ listings[0] }}" class="listing-image">
             <p class="price">Price: {{ listings[2] }}</p>
             <p class="owner">Listing owned by: {{ listings[4] }}</p>
+            <!--displays listings for admin page -->
 
-            <form method="post" action="/delete_listing_admin" onsubmit = "return confirm('are you sure?');">
+            <form method="post" action="/delete_listing_admin" onsubmit = "return confirm('are you sure?, this cannot be recovered');">
                 <input type="hidden" name="listing_id" value="{{ listings[5] }}">
                 <button type="submit" class="delete-button">Delete Listing</button>
             </form>
+        <!--a delete button that passes the listing id-->
         </div>
         <br>
         <br>

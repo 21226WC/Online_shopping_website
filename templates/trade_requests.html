@@ -5,33 +5,32 @@
 
 {% for trade in trade_requests %}
     <p><strong>Trade ID:</strong> {{ trade[0] }}</p>
-
+    <!--for loop to display all trade requests a user has -->
     <h3>Requested Listing</h3>
     <p><strong>Title:</strong> {{ trade[2][0] }}</p>
     <p><strong>Description:</strong> {{ trade[2][1] }}</p>
     <p><strong>Price:</strong> {{ trade[2][2] }}</p>
     <p><strong>Owner:</strong> {{ trade[2][3] }}</p>
-    <br>
+    <br><!--displays the requested listing info -->
     <br>
     <h3>Offered Listing</h3>
     <p><strong>Title:</strong> {{ trade[3][0] }}</p>
     <p><strong>Description:</strong> {{ trade[3][1] }}</p>
     <p><strong>Price:</strong> {{ trade[3][2] }}</p>
     <p><strong>Owner:</strong> {{ trade[3][3] }}</p>
-    <br>
+    <br><!--displays the requested listing info-->
     <p><strong>Status:</strong> {{ trade[1] }}</p>
+    <!--displays the status-->
 
-    {% if trade[1] == 'pending' %}
+    {% if trade[1] == 'pending' %} <!--if the trade is pending it gives you the option to accept or reject the trade-->
       <form action="/approve_trade" method="post" style="display:inline;">
         <input type="hidden" name="trade_id" value="{{ trade[0] }}">
-        <button>Approve</button>
+        <button>Approve</button><!--approve button that passes the trade id and calls the approve_trade function-->
       </form>
       <form action="/reject_trade" method="post" style="display:inline;">
         <input type="hidden" name="trade_id" value="{{ trade[0] }}">
-        <button>Reject</button>
+        <button>Reject</button><!--reject button that passes the trade id and calls the reject_trade function-->
       </form>
-    {% else %}
-      <p>No actions available</p>
     {% endif %}
 {% endfor %}
 

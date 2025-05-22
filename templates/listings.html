@@ -10,11 +10,13 @@
             <img src = "static/images/{{ listings[3] }}.jpg">
             <p> Price: {{ listings[2] }} </p>
             <p> listing owned by: {{ listings[4] }} </p>
+            <!--displays listings that are passed over by the listings function-->
 
             <form method="post" action="/view_listing">
                 <input type="hidden" name="view_listing_id" value="{{ listings[5] }}">
                 <button type="submit" class="button">TRADE</button>
             </form>
+        <!--a trade button that passes the listings id and calls the /view_listing function -->
         </div>
         <br>
         <br>

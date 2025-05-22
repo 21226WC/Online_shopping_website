@@ -276,7 +276,7 @@ def trade_requests():
 
     con = connect_database(DATABASE)
     cur = con.cursor()
-
+#Query to fetch all trade requests where the current user owns the requested listing
     query = """
     SELECT trade_id, listing_id, user_id, offered_listing_id, status
     FROM trades
@@ -284,7 +284,7 @@ def trade_requests():
     """
     cur.execute(query, (user_id,))
     trade_requests_data = cur.fetchall()
-
+#makes an empty list so it is easier to move data to the html file
     trade_details = []
 
     for trade in trade_requests_data:
@@ -303,13 +303,13 @@ def trade_requests():
         INNER JOIN signup_users ON signup_users.ID = user_listings.ID
         WHERE listing_id = ?""", (trade[3],))
         offered = cur.fetchone()
-
+# places the information into the blank table with trade ID, the status and the two relevant listings
         trade_details.append([trade[0], trade[4], requested, offered])
 
     con.close()
 
     return render_template('trade_requests.html',
-                           trade_requests=trade_details,
+                           trade_requests=trade_details, # returns the list of info to be displayed on the html
                            log_in=logged_in(),
                            admin=is_admin())
 
@@ -322,7 +322,7 @@ def login():
     if request.method == 'POST':
         email = request.form['user_email'].lower().strip()
         password = request.form['user_password'].strip()
-
+# takes the info form the form and makes sure that the email is lowercase and both dosent have a space after
         # Query to find user by email
         query = "SELECT * FROM signup_users WHERE email = ?"
         con = connect_database(DATABASE)
@@ -332,7 +332,7 @@ def login():
         cur.close()
 
         try:
-            # Extract user info from query result
+            # compares the data given by the user to details from signup to verify that its the same account details
             ID = user_info[0][0]
             name = user_info[0][1]
             email = user_info[0][2]
@@ -341,9 +341,9 @@ def login():
         except IndexError:  # If user not found
             return redirect('/login?error=email_or_password_incorrect')
 
-        # Check password with hashed version
+        # Check the incrypted password to make sure they are the same
         if not bcrypt.check_password_hash(login_password, password):
-            return redirect('/login?error=email_or_password_incorrect')
+            return redirect('/login?error=email_or_password_incorrect') #if any info doesnt match up, a error is given
         else:
             # Store login info in session
             session['ID'] = ID
@@ -351,7 +351,7 @@ def login():
             session['name'] = name
             session['admin'] = admin
             print(session)
-            return redirect('/listings')
+            return redirect('/listings') #redirects to listings if user successfully logs in
 
     return render_template('login.html',
                            log_in=logged_in(),
@@ -366,42 +366,43 @@ def render_signup():
         confirmpassword = request.form['cpassword'].strip()
         email = request.form['uemail'].lower().strip()
         admin_code = request.form['admin_code']
+        # gets info from the signup form and stores them in a veriable
 
         # Validation checks for user input
-        if password != confirmpassword:
+        if password != confirmpassword: #makes sure passwords match to avoid typo in password
             return redirect('/signup?error=passwords_dont_match')
-        if len(password) < 8:
+        if len(password) < 8: # makes sure password is at least 8 characters for security
             return redirect('/signup?error=password_too_short')
-        if len(username) > 50:
+        if len(username) > 50: # makes sure username isnt too long
             return redirect('/signup?error=user_name_too_long')
-        if len(email) > 50:
+        if len(email) > 50: #makes sure email is isnt too long
             return redirect('/signup?error=email_too_long')
-        if len(password) > 30:
+        if len(password) > 30: #makes sure password isnt too long
             return redirect('/signup?error=password_too_long')
-        if len(admin_code) > 4:
+        if len(admin_code) > 4: #makes sure correct admin code length
             return redirect('/signup?error=admin_code_error')
 
         # Determine admin status based on secret code
         is_admin = 1 if admin_code == '1992' else 0
 
-        # Hash password using bcrypt
+        # encrypt password using bcrypt
         hashed_password = bcrypt.generate_password_hash(password)
 
         con = connect_database('DATABASE')
         cur = con.cursor()
 
         if is_admin == 1:
-            # Insert new admin user
+            # Insert new admin user into table
             query_insert = "INSERT INTO signup_users (name, email, password, admin) VALUES (?, ?, ?, ?)"
             cur.execute(query_insert, (username, email, hashed_password, is_admin))
         else:
-            # Insert new regular user
+            # Insert new regular user into table
             query_insert = "INSERT INTO signup_users (name, email, password) VALUES (?, ?, ?)"
             cur.execute(query_insert, (username, email, hashed_password))
 
         con.commit()
         con.close()
-        return redirect("/login")
+        return redirect("/login") #if successfully signed up, will be redirected to login page
 
     return render_template('signup.html')
 

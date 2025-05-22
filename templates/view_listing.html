@@ -9,13 +9,13 @@
   <p><strong>Description:</strong> {{ view_listings[1] }}</p>
   <p><strong>Price:</strong> ${{ view_listings[2] }}</p>
   <p><strong>Seller:</strong> {{ view_listings[4] }}</p>
-
+<!--shows the single selected listing -->
   <div>
     {% if my_listings %}
     <form action="/trade" method="post" style="display: inline;">
-      <input type="hidden" name="target_listing_id" value="{{ view_listing_id }}">
+      <input type="hidden" name="target_listing_id" value="{{ view_listing_id }}"><!--passes the listing id-->
       <label for="my_listing">Offer Your Listing:</label>
-      <select name="my_listing_id" required>
+      <select name="my_listing_id" required><!--drop down for selecting your listing that you want to trade-->
         {% for listing in my_listings %}
           <option value="{{ listing[0] }}">{{ listing[1] }}</option>
         {% endfor %}

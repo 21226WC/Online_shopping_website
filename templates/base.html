@@ -17,23 +17,24 @@
         <div class="navbar-links">
             <a href="/">home</a>
             <a href="/trade_requests">Trade Requests</a>
-
+<!--shows nav buttons that everyone can use -->
             {% if admin == True %}
                 <a href="/admin">admin</a>
             {% else %}
             {% endif %}
-
+<!--shows admin button only if admin account is logged in -->
 
             {% if log_in == True %}
                 <a href="/logout">log out</a>
             {% else %}
                 <a href="/login">log in</a>
             {% endif %}
-
+<!--shows logout button if currently logged in, otherwise the login button -->
             {% if log_in == True %}
                 <a href="/listings">All listings</a>
                 <a href="/create_listing">create listing</a>
                 <a href="/my_listings">My listing</a>
+<!--shows buttons that you can only see if your logged in, otherwise nothing -->
             {% else %}
             {% endif %}
 
@@ -41,17 +42,3 @@
         </div>
     </div>
 </nav>
-<div class="container">
-    <header>
-        <h1></h1>
-        <h2>{% block pageheading %}{% endblock %}</h2>
-    </header>
-
-    <main>
-        {% block main %}
-        {% endblock %}
-    </main>
-</div>
-</body>
-
-</html>
