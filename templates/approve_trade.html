@@ -1,7 +1,15 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block pageheading %}WELCOME{% endblock %}
-
-{% block main %}
-<strong><em>wellcome to the online trading website, login to view all listings</em></strong>
-{% endblock %}
+<head>
+    <title>Trade Approved</title>
+</head>
+<body>
+    <h1>Trade Approved</h1>
+    <p>You have approved the trade.</p>
+    <p>The user who made the request: <strong>{{ requester_email }}</strong></p>
+    <p>please contact the requester</p>
+    <br>
+    <br>
+    <a href="/my_listings">Back to My Listings</a>
+</body>
+</html>

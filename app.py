@@ -4,9 +4,10 @@ from sqlite3 import Error
 from flask_bcrypt import Bcrypt
 #importing things i will need
 
+
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
-app.secret_key = "alsdkhf"  # Used to incrypt the password to be inserted into database
+app.secret_key = "alsdkhf"  # Used to encrypt the password to be inserted into database
 
 DATABASE = "/Users/aaronzang/FlaskProject4/DATABASE"
 
@@ -22,7 +23,7 @@ def connect_database(db_file):
 # Function to check whether a user is currently logged in
 # Returns True if session contains a user ID
 def logged_in():
-    if session.get("ID") == None:  # If session does not contain 'ID', user is not logged in
+    if session.get("ID") is None:  # If session does not contain 'ID', user is not logged in
         print("Not logged in")
         return False
     else:
@@ -49,7 +50,7 @@ def render_homepage():
 # returns rendering the admin html file and listing info to be displayed
 @app.route('/admin')
 def render_admin():
-    con = connect_database('DATABASE')
+    con = connect_database(DATABASE)
     # Query to join user_listings with signup_users to retrieve listing and user details
     # this is to let any admin delete all listings where normal users can only delete their own
     query = """
@@ -69,7 +70,7 @@ def render_admin():
 # Route to display all listings to any user
 @app.route('/listings')
 def render_listing():
-    con = connect_database('DATABASE')
+    con = connect_database(DATABASE)
     # Same query as admin, but shown to regular users
     # displays all listings for users to see but in the html it doesnt give them the option to delete them
     # only to trade returns the listing html and listing info
@@ -92,7 +93,7 @@ def render_listing():
 # so you can delete them
 @app.route('/my_listings')
 def render_my_listings():
-    con = connect_database('DATABASE')
+    con = connect_database(DATABASE)
     # Query to only retrieve listings where user ID matches the logged-in user
     query = """
     SELECT title, description, price, image_id, name, listing_id 
@@ -157,7 +158,7 @@ def delete_listing():
     if not listing_id:  # If no listing ID provided, redirect back
         return redirect('/my_listings')
     else:
-        con = connect_database('DATABASE')
+        con = connect_database(DATABASE)
         cur = con.cursor()
         # SQL DELETE query to remove the listing with the specified ID
         cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
@@ -174,7 +175,7 @@ def delete_listing_admin():
     if not listing_id:
         return redirect('/admin')
     else:
-        con = connect_database('DATABASE')
+        con = connect_database(DATABASE)
         cur = con.cursor()
         cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
         con.commit()
@@ -189,13 +190,13 @@ def create_listing():
         title = request.form['title'].title().strip()
         description = request.form['description'].strip()
         price = request.form['price'].strip()
-        ID = session["ID"]
+        id = session["ID"]
 
-        con = connect_database('DATABASE')
+        con = connect_database(DATABASE)
         # Insert query to save the new listing in the database
         query_insert = "INSERT INTO user_listings (title, description, price, ID) VALUES (?, ?, ?, ?)"
         cur = con.cursor()
-        cur.execute(query_insert, (title, description, price, ID))
+        cur.execute(query_insert, (title, description, price, id))
         con.commit()
         con.close()
         return redirect('/my_listings')
@@ -233,37 +234,55 @@ def trade():
     return redirect('/listings') # if full info is not provided, redirected back to all listings
 
 
+@app.route('/approve_trade', methods=['POST'])
+def approve_trade():
 
-@app.route('/approve_trade', methods=['POST','GET'])
-def confirm_trade():
-    trade_id = request.form.get('trade_id')
-    listing_id = request.form.get('listing_id')  # this must be passed from the form
+    target_listing_id = request.form.get('target_listing_id')  # listing being offered
+    trade_id = request.form.get('trade_id')  # trade request ID
+    listing_id = request.form.get('listing_id')  # your own listing being requested
 
     con = connect_database(DATABASE)
     cur = con.cursor()
-    # Delete the listing and the trade
+
+    # Delete your listing and the trade record
     cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
     cur.execute("DELETE FROM trades WHERE trade_id = ?", (trade_id,))
     con.commit()
+
+    # Fetch the email of the user who made the trade offer
+    query = """
+    SELECT email FROM signup_users 
+    WHERE ID = (SELECT user_id FROM trades WHERE trade_id = ?)
+    """
+    cur.execute(query, (trade_id,))
+    result = cur.fetchone()
     con.close()
-    return redirect('/approved_trade')
+
+    return render_template('approve_trade.html',
+                           requester_email=result,
+                           log_in=logged_in(),
+                           admin=is_admin())
 
 
-
-@app.route('/reject_trade', methods=['POST','GET'])
+@app.route('/reject_trade', methods=['POST'])
 def reject_trade():
-    trade_id = request.form.get('trade_id')
-    listing_id = request.form.get('listing_id')  # this must be passed from the form
+    if not logged_in():
+        return redirect('/login')
+
+    trade_id = request.form.get('trade_id')  # get trade ID from form
 
     con = connect_database(DATABASE)
     cur = con.cursor()
-    # Delete the listing and the trade
-    cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
+    # Just delete the trade request
     cur.execute("DELETE FROM trades WHERE trade_id = ?", (trade_id,))
     con.commit()
     con.close()
 
-    return redirect('/declined_trade')
+    return render_template('reject_trade.html',
+                           log_in=logged_in(),
+                           admin=is_admin())
+
+
 
 # looks if current user has any requests and gets info to be displayed
 # it does this by first querying the database
@@ -388,7 +407,7 @@ def render_signup():
         # encrypt password using bcrypt
         hashed_password = bcrypt.generate_password_hash(password)
 
-        con = connect_database('DATABASE')
+        con = connect_database(DATABASE)
         cur = con.cursor()
 
         if is_admin == 1:
