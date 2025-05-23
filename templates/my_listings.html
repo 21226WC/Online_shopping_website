@@ -10,15 +10,19 @@
             <img src="static/images/{{ listings[3] }}.jpg" alt="{{ listings[0] }}" class="listing-image">
             <p class="price">Price: {{ listings[2] }}</p>
             <p class="owner">Listing owned by: {{ listings[4] }}</p>
-            <!--displays all of the users listings using a for loop -->
 
-            <form method="post" action="/delete_listing" onsubmit = "return confirm('are you sure?, info cannot be recovered');">
+            <!-- Delete button -->
+            <form method="post" action="/delete_listing" onsubmit="return confirm('Are you sure? This action cannot be undone.');">
                 <input type="hidden" name="listing_id" value="{{ listings[5] }}">
                 <button type="submit" class="delete-button">Delete Listing</button>
             </form>
-            <!--a delete button that passes the listings id and calls the delete_listing function -->
+            <br>
+
+            <!-- Edit button (passes the listing id through the url to be stored)-->
+            <a href="/edit_listing?listing_id={{ listings[5] }}">
+                <button type="button" class="edit-button">Edit Listing</button>
+            </a>
         </div>
-        <br>
-        <br>
+        <br><br>
     {% endfor %}
 {% endblock %}

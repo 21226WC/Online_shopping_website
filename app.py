@@ -192,6 +192,9 @@ def create_listing():
         price = request.form['price'].strip()
         id = session["ID"]
 
+        if len(title)>50 or len(description)>100 or len(price)>20:
+            return redirect('/create_listing?error=length_too_long')
+
         con = connect_database(DATABASE)
         # Insert query to save the new listing in the database
         query_insert = "INSERT INTO user_listings (title, description, price, ID) VALUES (?, ?, ?, ?)"
@@ -203,6 +206,47 @@ def create_listing():
     return render_template('creating_listing.html',
                            log_in=logged_in(),
                            admin=is_admin())
+
+
+
+
+#edits listings by updating info in the database
+#gets listing id from form
+@app.route('/edit_listing', methods=['GET', 'POST'])
+def edit_listing():
+    if not logged_in():
+        return redirect('/login')
+
+    if request.method == 'POST':
+        listing_id = request.form.get('listing_id')
+        title = request.form.get('title').title().strip()
+        description = request.form.get('description').strip()
+        price = request.form.get('price').strip()
+#gets info from forms
+        print(title,description,price,listing_id)
+
+        con = connect_database(DATABASE)
+        cur = con.cursor()
+        update_query = """
+            UPDATE user_listings
+            SET title = ?, description = ?, price = ?
+            WHERE listing_id = ?
+        """
+        #updates info into database
+        cur.execute(update_query, (title, description, price, listing_id))
+        con.commit()
+        con.close()
+
+        return redirect('/my_listings')
+#returns the html file for editing if its a get request
+    listing_id = request.args.get('listing_id')
+    return render_template('update_listing.html',
+                           listing_id=listing_id,
+                           log_in=logged_in(),
+                           admin=is_admin())
+
+
+
 
 # inserts a trade request into the trades table
 @app.route('/trade', methods=['POST','GET'])
@@ -233,51 +277,64 @@ def trade():
 
     return redirect('/listings') # if full info is not provided, redirected back to all listings
 
-
+#approves trade
 @app.route('/approve_trade', methods=['POST'])
 def approve_trade():
-
-    target_listing_id = request.form.get('target_listing_id')  # listing being offered
-    trade_id = request.form.get('trade_id')  # trade request ID
-    listing_id = request.form.get('listing_id')  # your own listing being requested
-
+    print('approve_trade')
+    trade_id = request.form.get('trade_id')  # trade ID request from the hidden input form button
+    print(trade_id,)
     con = connect_database(DATABASE)
     cur = con.cursor()
 
-    # Delete your listing and the trade record
-    cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
-    cur.execute("DELETE FROM trades WHERE trade_id = ?", (trade_id,))
-    con.commit()
+    query = """
+       SELECT listing_id, offered_listing_id FROM trades
+       WHERE trade_id = ?
+       """
+    cur.execute(query, (trade_id,))
+    listing_result = cur.fetchone()
+    print(listing_result)
+    listing_id, offered_listing_id = listing_result
+    #querys the database to get the rest of the info
 
-    # Fetch the email of the user who made the trade offer
+    # Get the email FIRST before deleting the trade
     query = """
     SELECT email FROM signup_users 
     WHERE ID = (SELECT user_id FROM trades WHERE trade_id = ?)
     """
     cur.execute(query, (trade_id,))
-    result = cur.fetchone()
-    con.close()
-
-    return render_template('approve_trade.html',
-                           requester_email=result,
-                           log_in=logged_in(),
-                           admin=is_admin())
+    email_result = cur.fetchone()[0]
+    # querys the database for the contact email
 
 
-@app.route('/reject_trade', methods=['POST'])
-def reject_trade():
-    if not logged_in():
-        return redirect('/login')
-
-    trade_id = request.form.get('trade_id')  # get trade ID from form
-
-    con = connect_database(DATABASE)
-    cur = con.cursor()
-    # Just delete the trade request
+    #delete the trade and listings
+    cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (listing_id,))
+    cur.execute("DELETE FROM user_listings WHERE listing_id = ?", (offered_listing_id,))
     cur.execute("DELETE FROM trades WHERE trade_id = ?", (trade_id,))
     con.commit()
     con.close()
 
+    return render_template('approve_trade.html',
+                           requester_email=email_result,
+                           log_in=logged_in(),
+                           admin=is_admin())
+    #renders the approved page which displays the email
+    #email is also passed there
+
+
+
+@app.route('/reject_trade', methods=['POST'])
+def reject_trade():
+    # Get the trade ID from the form data
+    trade_id = request.form.get('trade_id')
+    con = connect_database(DATABASE)
+    cur = con.cursor()
+
+    # Delete only the trade request from the trades table
+    cur.execute("DELETE FROM trades WHERE trade_id = ?", (trade_id,))
+    con.commit()
+    con.close()
+
+    # Render the reject_trade page
     return render_template('reject_trade.html',
                            log_in=logged_in(),
                            admin=is_admin())
@@ -341,7 +398,7 @@ def login():
     if request.method == 'POST':
         email = request.form['user_email'].lower().strip()
         password = request.form['user_password'].strip()
-# takes the info form the form and makes sure that the email is lowercase and both dosent have a space after
+        # takes the info form the form and makes sure that the email is lowercase and both dosent have a space after
         # Query to find user by email
         query = "SELECT * FROM signup_users WHERE email = ?"
         con = connect_database(DATABASE)
@@ -360,7 +417,7 @@ def login():
         except IndexError:  # If user not found
             return redirect('/login?error=email_or_password_incorrect')
 
-        # Check the incrypted password to make sure they are the same
+        # Check the encrypted password to make sure they are the same
         if not bcrypt.check_password_hash(login_password, password):
             return redirect('/login?error=email_or_password_incorrect') #if any info doesnt match up, a error is given
         else:
@@ -371,7 +428,6 @@ def login():
             session['admin'] = admin
             print(session)
             return redirect('/listings') #redirects to listings if user successfully logs in
-
     return render_template('login.html',
                            log_in=logged_in(),
                            admin=is_admin())

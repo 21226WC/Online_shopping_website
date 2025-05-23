@@ -1,15 +1,12 @@
 {% extends 'base.html' %}
 
-<head>
-    <title>Trade Approved</title>
-</head>
-<body>
+{% block main %}
     <h1>Trade Approved</h1>
     <p>You have approved the trade.</p>
     <p>The user who made the request: <strong>{{ requester_email }}</strong></p>
-    <p>please contact the requester</p>
-    <br>
+    <p>Please contact the requester to complete the exchange.</p>
     <br>
     <a href="/my_listings">Back to My Listings</a>
-</body>
-</html>
+{% endblock %}
+
+<!--the approved page, shows email that was passed by the approve_trade function -->

@@ -4,7 +4,8 @@
 
 {% block main %}
     {% for listings in listings_info %}
-        <div class = "product-box">
+        <div>
+            <div class = "product-box">
             <h3 class = "product-box-heading"> {{ listings[0] }} </h3>
             <p> {{ listings[1] }} </p>
             <img src = "static/images/{{ listings[3] }}.jpg">

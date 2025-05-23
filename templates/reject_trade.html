@@ -1,10 +1,11 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-<head>
-    <title>Trade Rejected</title>
-</head>
-<body>
-    <h1>Trade Rejected</h1>
-    <p>You have rejected the trade request.</p>
-    <a href="/trade_requests">Back to Trade Requests</a>
-</body>
+{% block main %}
+    <h1>Trade rejected</h1>
+    <p>You have rejected the trade.</p>
+    <br>
+    <a href="/my_listings">Back to My Listings</a>
+{% endblock %}
+
+<!--the rejected page, shows u were rejected-->
+

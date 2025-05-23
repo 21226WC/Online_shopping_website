@@ -24,8 +24,11 @@
 
     {% if trade[1] == 'pending' %} <!--if the trade is pending it gives you the option to accept or reject the trade-->
       <form action="/approve_trade" method="post" style="display:inline;">
-        <input type="hidden" name="trade_id" value="{{ trade[0] }}">
-        <button>Approve</button><!--approve button that passes the trade id and calls the approve_trade function-->
+          <input type="hidden" name="target_listing_id" value="{{ some_target_id }}">
+          <input type="hidden" name="listing_id" value="{{ requested_id }}">
+          <input type="hidden" name="trade_id" value="{{ trade[0] }}">
+          <button type="submit">Approve</button>
+          <!--approve button that passes the trade id and calls the approve_trade function-->
       </form>
       <form action="/reject_trade" method="post" style="display:inline;">
         <input type="hidden" name="trade_id" value="{{ trade[0] }}">

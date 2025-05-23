@@ -1,44 +1,46 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <meta charset="utf-8">
-    <title>Trade You | home</title>
+    <title>{% block title %}Trade You | Home{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"/>
     <link href="{{ url_for('static', filename='trade_you.css') }}" rel="stylesheet">
 </head>
-
 <body>
+
 <nav>
     <div class="container">
         <div class="navbar-brand">Trade You</div>
         <div class="navbar-links">
             <a href="/">home</a>
-            <a href="/trade_requests">Trade Requests</a>
-<!--shows nav buttons that everyone can use -->
-            {% if admin == True %}
-                <a href="/admin">admin</a>
-            {% else %}
-            {% endif %}
-<!--shows admin button only if admin account is logged in -->
 
-            {% if log_in == True %}
-                <a href="/logout">log out</a>
-            {% else %}
-                <a href="/login">log in</a>
+            {% if admin %}<!--shows the admin button only when admin is true-->
+                <a href="/admin">admin</a>
             {% endif %}
-<!--shows logout button if currently logged in, otherwise the login button -->
-            {% if log_in == True %}
+
+            {% if log_in %}<!--shows these buttons only if you are logged in-->
+                <a href="/logout">log out</a>
                 <a href="/listings">All listings</a>
                 <a href="/create_listing">create listing</a>
                 <a href="/my_listings">My listing</a>
-<!--shows buttons that you can only see if your logged in, otherwise nothing -->
+                <a href="/trade_requests">Trade Requests</a>
             {% else %}
+                <a href="/login">log in</a>
+
             {% endif %}
-
-
         </div>
     </div>
 </nav>
+
+<header>
+    <h1>{% block pageheading %}{% endblock %}</h1>
+</header>
+
+<main>
+    {% block main %}{% endblock %}
+</main>
+
+</body>
+</html>
